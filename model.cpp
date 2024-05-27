@@ -1,22 +1,50 @@
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include "model.h"
+#include <regex>
 
+Model::Model() {};
 Model::Model(string filename) {
-        
+    ifstream obj{filename};
+
+    if (!obj){
+        cout << "Can't read" << endl;
+    }
+
+    string line{};
+    while (getline(obj, line)) {
+		vector<string> svec{};
+		istringstream s{line};
+        string c{};
+        smatch results;
+        regex vertex_regex{R"((v)\s+(-?\d*\.?\d*)\s+(-?\d*\.?\d*)\s+(-?\d*\.?\d*))"};
+
+        auto vertex_match = regex_match(line, results, vertex_regex);
+        if (vertex_match && results[1] == "v") {
+            Vec3f v{stof(results[2]), stof(results[3]), stof(results[4])};
+            vertices.push_back(v);
+        }
+
+        smatch fresults;
+        regex face_regex{R"((f)\s(\d+)\/\d+\/\d+\s(\d+)\/\d+\/\d+\s(\d+)\/\d+\/\d+)"};
+        auto face_match = regex_match(line, fresults, face_regex);
+        if (face_match && fresults[1] == "f") {
+            vector<int> face{stoi(fresults[2]), stoi(fresults[3]), stoi(fresults[4])};
+            faces.push_back(face);
+        }
+
+    }
 };
 
 Vec3f Model::vert(int index) {
-    return this->vertices[index];
-}
-
-array<int> face(int index) {
-    //if (index > 3 || index < 0) {
-    //    throw exception;
-    //}
-    return this->faces[index];
+    return vertices[index];
 };
 
-int nfaces(){
-    return this->faces.size();
+vector<int> Model::face(int index) {
+    return faces[index];
+};
+
+int Model::nfaces(){
+    return faces.size();
 };

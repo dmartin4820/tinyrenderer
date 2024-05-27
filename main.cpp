@@ -1,4 +1,5 @@
 #include "tgaimage.h"
+#include "model.h"
 #include <opencv2/opencv.hpp>
 
 using namespace cv;
@@ -37,21 +38,26 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 }
 
 int main(int argc, char** argv) {
-    Vec3f v0{};
-    v0.zeros();
-
-    std::cout << v0 << std::endl;
-    //for (int i=0; i<model->nfaces(); i++) {
-    //    for (int j=0; j<3; j++) {
-    //        Vec3f v0 = model->vert(face[j]);
-    //        Vec3f v1 = model->vert(face[(j+1)%3]);
-    //        int x0 = (v0.x+1.)*width/2.;
-    //        int y0 = (v0.y+1.)*height/2.;
-    //        int x1 = (v1.x+1.)*width/2.;
-    //        int y1 = (v1.y+1.)*height/2.;
-    //        line(x0, y0, x1, y1, image, white);
-    //    }
-    //} 
+    string boggie{"../obj/boggie/body.obj"};
+    string african_head{"../obj/african_head/african_head.obj"};
+    Model *model = new Model(african_head);
+    int height = 800;
+    int width = 800;
+    TGAImage image(height, width,TGAImage::RGB);
+    cout << model->nfaces() << endl;
+    for (int i=0; i<model->nfaces(); i++) {
+        vector<int> face = model->face(i);
+        for (int j=0; j<3; j++) {
+            Vec3f v0 = model->vert(face[j]);
+            Vec3f v1 = model->vert(face[(j+1)%3]);
+            int x0 = (v0[0]+1.)*width/2.;
+            int y0 = (v0[1]+1.)*height/2.;
+            int x1 = (v1[0]+1.)*width/2.;
+            int y1 = (v1[1]+1.)*height/2.;
+            line(x0, y0, x1, y1, image, white);
+        }
+    } 
+    image.write_tga_file("test.tga");
 	return 0;
 }
 

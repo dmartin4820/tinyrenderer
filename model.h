@@ -2,6 +2,7 @@
 #define __MODEL_H__
 #include <string>
 #include <typeinfo>
+#include <regex>
 #include <array>
 #include <vector>
 #include <opencv2/opencv.hpp>
@@ -22,6 +23,7 @@ class Model {
         vector<int> face(int index);
 
         int nfaces();
+        int nvertices();
 };
 
 #endif //__MODEL_H__

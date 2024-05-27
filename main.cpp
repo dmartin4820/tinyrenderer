@@ -1,4 +1,6 @@
 #include "tgaimage.h"
+#include <cstring>
+#include <regex>
 #include "model.h"
 #include <opencv2/opencv.hpp>
 
@@ -38,14 +40,29 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, TGAColor color) {
 }
 
 int main(int argc, char** argv) {
-    string boggie{"../obj/boggie/body.obj"};
-    string african_head{"../obj/african_head/african_head.obj"};
-    Model *model = new Model(african_head);
+    string input_path = argv[1];
+
+    string::size_type start = input_path.rfind("/");
+    string::size_type end = input_path.rfind(".");
+    int len = end - start - 1;
+    string filename = input_path.substr(start + 1 , len) + ".tga";
+
+    cout << filename << endl;
+    
+    const char* filename_out = filename.c_str();
+
+      
+    Model *model = new Model(input_path);
+
     int height = 800;
     int width = 800;
     TGAImage image(height, width,TGAImage::RGB);
+
     cout << model->nfaces() << endl;
-    for (int i=0; i<model->nfaces(); i++) {
+    cout << model->nvertices() << endl;
+
+    for (int i=0; i < model->nfaces(); i++) {
+
         vector<int> face = model->face(i);
         for (int j=0; j<3; j++) {
             Vec3f v0 = model->vert(face[j]);
@@ -57,7 +74,13 @@ int main(int argc, char** argv) {
             line(x0, y0, x1, y1, image, white);
         }
     } 
-    image.write_tga_file("test.tga");
+    image.flip_vertically();
+    try {
+        image.write_tga_file(filename_out);
+    } catch(...) {
+        cout << "using default filename out" << endl;
+        image.write_tga_file("mytinyrenderer.tga");
+    }
 	return 0;
 }
 
